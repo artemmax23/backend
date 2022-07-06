@@ -15,7 +15,7 @@ def before_request():
     UPLOAD_FOLDER = g.get('upload_folder')
     session = g.get('session')
 
-@auxillary.route("/")
+@auxillary.route("/find")
 def find():
     path = str(request.form['path'])
     path = "%{}%".format(path)
