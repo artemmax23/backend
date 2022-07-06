@@ -32,12 +32,15 @@ def home():
 
 @app.route("/oneinfo/<fileId>", methods=['GET'])
 def oneinfo(fileId):
-    result = session.query(File).filter(File.id == fileId).first()
-    data = {'name': result.name, 'extension': result.extension, 'size': result.size,
+    try:
+        result = session.query(File).filter(File.id == fileId).first()
+        data = {'name': result.name, 'extension': result.extension, 'size': result.size,
              'path': result.path, 'created_at': result.created_at.__str__(),
               'updated_at': result.updated_at.__str__(),
              'comment': result.comment}
-    return json.dumps(data)
+        return json.dumps(data)
+    except BaseException:
+        return "Invalid file id!"
 
 @app.route("/addfile/", methods=['POST'])
 def add():
@@ -51,9 +54,11 @@ def add():
     file.save(app.config['UPLOAD_FOLDER'] + path + filename)
     info = os.stat(app.config['UPLOAD_FOLDER'] + path + filename)
     name = filename.split(".")
+    if len(name[1]) > 4:
+        return "Invalid file extension!"
     comment = str(request.form['comment'])
     if session.query(File).filter(File.name == name[0]).filter(File.extension == name[1]).filter(File.path == path).first() != None:
-        return "Such file exist"
+        return "Such file exist!"
     file = File(name[0], name[1], info[6], path, comment)
     session.add(file)
     session.commit()
@@ -69,5 +74,6 @@ def delete(fileId):
             os.removedirs(app.config['UPLOAD_FOLDER'] + result.path)
         session.delete(result)
         session.commit()
-
-    return "True"
+        return "True"
+    else:
+        return "Invalid file id!"

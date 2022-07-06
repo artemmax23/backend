@@ -15,66 +15,74 @@ def before_request():
     UPLOAD_FOLDER = g.get('upload_folder')
     session = g.get('session')
 
-@auxillary.route("/find")
+@auxillary.route("/find/", methods=['POST'])
 def find():
     path = str(request.form['path'])
     path = "%{}%".format(path)
     result = session.query(File).filter(File.path.like(path)).all()
-    data = [{'name': p.name, 'extension': p.extension, 'size': p.size,
+    if not(result):
+        data = [{'name': p.name, 'extension': p.extension, 'size': p.size,
              'path': p.path, 'created_at': p.created_at.__str__(),
              'updated_at': p.updated_at.__str__(),
              'comment': p.comment} for p in result]
-
-    return json.dumps(data)
+        return json.dumps(data)
+    else:
+        return "Such files doesn't exist!"
 
 @auxillary.route("/download/<fileId>", methods=['GET'])
 def download(fileId):
     result = session.query(File).filter(File.id == fileId).first()
-    return send_from_directory(directory=UPLOAD_FOLDER, path=result.path + result.name + '.' + result.extension)
+    if result != None:
+        return send_from_directory(directory=UPLOAD_FOLDER, path=result.path + result.name + '.' + result.extension)
+    else:
+        return "Such file doesn't exist!"
 
 @auxillary.route("/change/", methods=['POST'])
 def change():
-    fileId = int(request.form['fileId'])
-    name =  str(request.form['name'])
-    path =  str(request.form['path'])
-    comment =  str(request.form['comment'])
+    try:
+        fileId = int(request.form['fileId'])
+        name =  str(request.form['name'])
+        path =  str(request.form['path'])
+        comment =  str(request.form['comment'])
 
-    if (len(path) != 0) and (path[-1] != '/'):
-        path += "/"
+        if (len(path) != 0) and (path[-1] != '/'):
+            path += "/"
 
-    temp = session.query(File).filter(File.id == fileId).first()
-    old_path = UPLOAD_FOLDER + temp.path + temp.name + '.' + temp.extension
+        temp = session.query(File).filter(File.id == fileId).first()
+        old_path = UPLOAD_FOLDER + temp.path + temp.name + '.' + temp.extension
 
-    st = dict()
-    new_path = UPLOAD_FOLDER
+        st = dict()
+        new_path = UPLOAD_FOLDER
 
-    if path != "":
-        st['path'] = path
-        new_path += path
-        os.makedirs(new_path)
-    else:
-        new_path += temp.path
+        if path != "":
+            st['path'] = path
+            new_path += path
+            os.makedirs(new_path)
+        else:
+            new_path += temp.path
 
-    if name != "":
-        st['name'] = name
-        new_path += name + '.' + temp.extension
-    else:
-        new_path += temp.name + '.' + temp.extension
+        if name != "":
+            st['name'] = name
+            new_path += name + '.' + temp.extension
+        else:
+            new_path += temp.name + '.' + temp.extension
 
-    if comment != "":
-        st['comment'] = comment
+        if comment != "":
+            st['comment'] = comment
 
-    st['updated_at'] = datetime.datetime.now()
+        st['updated_at'] = datetime.datetime.now()
 
-    if new_path != old_path:
-        os.replace(old_path, new_path)
-        if len(os.listdir(UPLOAD_FOLDER + temp.path)) == 0:
-            os.removedirs(UPLOAD_FOLDER + temp.path)
+        if new_path != old_path:
+            os.replace(old_path, new_path)
+            if len(os.listdir(UPLOAD_FOLDER + temp.path)) == 0:
+                os.removedirs(UPLOAD_FOLDER + temp.path)
 
-    session.query(File).filter(File.id == fileId).update(st)
-    session.commit()
+        session.query(File).filter(File.id == fileId).update(st)
+        session.commit()
 
-    return "True"
+        return "True"
+    except BaseException:
+        return "Invalid input!"
 
 @auxillary.route("/sync/")
 def sync():
