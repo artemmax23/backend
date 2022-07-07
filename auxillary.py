@@ -1,13 +1,11 @@
 import traceback
-from flask import Blueprint, request,  session, send_from_directory, g
-from fileClass import File
+from flask import Blueprint, request, send_from_directory, g
 import json
 import os
 import datetime
 
 auxillary = Blueprint('auxillary', __name__)
 UPLOAD_FOLDER = None
-session = None
 db = None
 
 @auxillary.before_request
@@ -106,8 +104,7 @@ def sync():
         if len(os.listdir(UPLOAD_FOLDER + path)) == 0:
             os.removedirs(UPLOAD_FOLDER + path)
         name, extension = fullname.split('.', 1)
-        result = session.query(File).filter(File.name == name).filter(File.extension == extension).filter(File.path == path).first()
-        session.delete(result)
-        session.commit()
+
+        db.delete_by_path([name, extension, path])
 
     return "True"

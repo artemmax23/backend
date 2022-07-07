@@ -3,7 +3,7 @@ from flask import Flask, request, g
 from werkzeug.utils import secure_filename
 import os
 from auxillary import auxillary
-from DBInterfaceClass import MySqlDb
+from MySqlDbClass import MySqlDb
 
 app = Flask(__name__)
 app.register_blueprint(auxillary)
