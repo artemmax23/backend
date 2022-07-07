@@ -3,7 +3,7 @@ from flask import Flask, request, g
 from werkzeug.utils import secure_filename
 import os
 from auxillary import auxillary
-from DataSources.MySqlDbClass import MySqlDb
+from DataSources.my_sql_db_class import MySqlDb
 
 app = Flask(__name__)
 app.register_blueprint(auxillary)
@@ -24,10 +24,10 @@ def before_request():
 def home():
     return db.all()
 
-@app.route("/oneinfo/<fileId>", methods=['GET'])
-def oneinfo(fileId):
+@app.route("/oneinfo/<file_id>", methods=['GET'])
+def one_info(file_id):
     try:
-        return db.one_info(fileId)
+        return db.one_info(file_id)
     except BaseException:
         return traceback.format_exc()
 
@@ -52,9 +52,9 @@ def add():
     except BaseException:
         return traceback.format_exc()
 
-@app.route("/deletefile/<fileId>", methods=['GET'])
-def delete(fileId):
-    result = db.remove(fileId)
+@app.route("/deletefile/<file_id>", methods=['GET'])
+def delete(file_id):
+    result = db.remove(file_id)
     if (result != None):
         os.remove(app.config['UPLOAD_FOLDER'] + result.path + result.name + '.' + result.extension)
         if len(os.listdir(app.config['UPLOAD_FOLDER'] + result.path)) == 0:

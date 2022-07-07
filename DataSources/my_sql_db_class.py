@@ -1,5 +1,5 @@
-from DataSources.DBInterfaceClass import DBInterface
-from DataSources.fileClass import File, Session
+from DataSources.db_interface_class import DBInterface
+from DataSources.file_сlass import File, Session
 import json
 
 class MySqlDb(DBInterface):
