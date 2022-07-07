@@ -1,3 +1,4 @@
+import traceback
 from flask import Blueprint, request,  session, send_from_directory, g
 from fileClass import File
 import json
@@ -7,33 +8,25 @@ import datetime
 auxillary = Blueprint('auxillary', __name__)
 UPLOAD_FOLDER = None
 session = None
+db = None
 
 @auxillary.before_request
 def before_request():
     global UPLOAD_FOLDER
-    global session
+    global db
     UPLOAD_FOLDER = g.get('upload_folder')
-    session = g.get('session')
+    db = g.get('db')
 
 @auxillary.route("/find/", methods=['POST'])
 def find():
     path = str(request.form['path'])
-    path = "%{}%".format(path)
-    result = session.query(File).filter(File.path.like(path)).all()
-    if not(result):
-        data = [{'name': p.name, 'extension': p.extension, 'size': p.size,
-             'path': p.path, 'created_at': p.created_at.__str__(),
-             'updated_at': p.updated_at.__str__(),
-             'comment': p.comment} for p in result]
-        return json.dumps(data)
-    else:
-        return "Such files doesn't exist!"
+    return db.find(path)
 
 @auxillary.route("/download/<fileId>", methods=['GET'])
 def download(fileId):
-    result = session.query(File).filter(File.id == fileId).first()
-    if result != None:
-        return send_from_directory(directory=UPLOAD_FOLDER, path=result.path + result.name + '.' + result.extension)
+    path = db.get_path(fileId)
+    if path != None:
+        return send_from_directory(directory=UPLOAD_FOLDER, path=path)
     else:
         return "Such file doesn't exist!"
 
@@ -48,8 +41,8 @@ def change():
         if (len(path) != 0) and (path[-1] != '/'):
             path += "/"
 
-        temp = session.query(File).filter(File.id == fileId).first()
-        old_path = UPLOAD_FOLDER + temp.path + temp.name + '.' + temp.extension
+        temp = json.loads(db.one_info(fileId))
+        old_path = UPLOAD_FOLDER + temp['path'] + temp['name'] + '.' + temp['extension']
 
         st = dict()
         new_path = UPLOAD_FOLDER
@@ -57,15 +50,16 @@ def change():
         if path != "":
             st['path'] = path
             new_path += path
-            os.makedirs(new_path)
+            if not(os.path.exists(new_path)):
+                os.makedirs(new_path)
         else:
-            new_path += temp.path
+            new_path += temp['path']
 
         if name != "":
             st['name'] = name
-            new_path += name + '.' + temp.extension
+            new_path += name + '.' + temp['extension']
         else:
-            new_path += temp.name + '.' + temp.extension
+            new_path += temp['name'] + '.' + temp['extension']
 
         if comment != "":
             st['comment'] = comment
@@ -74,21 +68,19 @@ def change():
 
         if new_path != old_path:
             os.replace(old_path, new_path)
-            if len(os.listdir(UPLOAD_FOLDER + temp.path)) == 0:
-                os.removedirs(UPLOAD_FOLDER + temp.path)
+            if len(os.listdir(UPLOAD_FOLDER + temp['path'])) == 0:
+                os.removedirs(UPLOAD_FOLDER + temp['path'])
 
-        session.query(File).filter(File.id == fileId).update(st)
-        session.commit()
-
+        db.update(fileId, st)
         return "True"
     except BaseException:
-        return "Invalid input!"
+        return traceback.format_exc()
 
 @auxillary.route("/sync/")
 def sync():
 
-    result = session.query(File).all()
-    db_paths = [UPLOAD_FOLDER + p.path + p.name + '.' + p.extension for p in result]
+    result = json.loads(db.all())
+    db_paths = [UPLOAD_FOLDER + p['path'] + p['name'] + '.' + p['extension'] for p in result]
     cnt = UPLOAD_FOLDER.count('/')
 
     for address, dirs, files in os.walk(UPLOAD_FOLDER):
@@ -100,9 +92,7 @@ def sync():
                 filename = name.split('.')
                 info = os.stat(path)
                 relative = address.split('/', cnt)[cnt] + '/'
-                file = File(filename[0], filename[1], info[6], relative, "")
-                session.add(file)
-                session.commit()
+                db.insert([filename[0], filename[1], info[6], relative, ""])
             else:
                 db_paths.remove(path)
 

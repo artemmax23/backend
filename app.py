@@ -1,10 +1,7 @@
 import traceback
-
 from flask import Flask, request, g
 from werkzeug.utils import secure_filename
-from fileClass import Session, File
 import os
-import json
 from auxillary import auxillary
 from DBInterfaceClass import MySqlDb
 
@@ -16,14 +13,11 @@ UPLOAD_FOLDER = 'D:/downloads/'
 
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
-session = Session()
-
 @app.before_request
 def before_request():
     if not hasattr(g, 'upload_folder'):
         g.upload_folder = app.config['UPLOAD_FOLDER']
-    if not hasattr(g, 'session'):
-        g.session = session
+        g.db = db
 
 @app.route("/all/")
 def home():
