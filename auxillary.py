@@ -89,7 +89,9 @@ def sync():
             if not(path in db_paths):
                 filename = name.split('.')
                 info = os.stat(path)
-                relative = address.split('/', cnt)[cnt] + '/'
+                relative = address.split('/', cnt)[cnt]
+                if len(relative) != 0:
+                    relative += '/'
                 db.insert([filename[0], filename[1], info[6], relative, ""])
             else:
                 db_paths.remove(path)
@@ -97,10 +99,15 @@ def sync():
     for p in db_paths:
         relative = p.split('/', cnt)
         relative.reverse()
-        fullname, path = relative[0][::-1].split('/', 1)
-        path = path[::-1]
-        fullname = fullname[::-1]
-        path += '/'
+        if relative[0].count('/') != 0:
+            fullname, path = relative[0][::-1].split('/', 1)
+            path = path[::-1]
+            fullname = fullname[::-1]
+            path += '/'
+        else:
+            fullname = relative[0]
+            path = ''
+
         if len(os.listdir(UPLOAD_FOLDER + path)) == 0:
             os.removedirs(UPLOAD_FOLDER + path)
         name, extension = fullname.split('.', 1)
