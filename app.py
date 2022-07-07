@@ -3,7 +3,7 @@ from flask import Flask, request, g
 from werkzeug.utils import secure_filename
 import os
 from auxillary import auxillary
-from MySqlDbClass import MySqlDb
+from DataSources.MySqlDbClass import MySqlDb
 
 app = Flask(__name__)
 app.register_blueprint(auxillary)
@@ -12,6 +12,7 @@ db = MySqlDb()
 UPLOAD_FOLDER = 'D:/downloads/'
 
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+app.config['MAX_CONTENT_LENGTH'] = 16 * 1000 * 1000
 
 @app.before_request
 def before_request():
@@ -26,9 +27,9 @@ def home():
 @app.route("/oneinfo/<fileId>", methods=['GET'])
 def oneinfo(fileId):
     try:
-        return db.oneInfo(fileId)
+        return db.one_info(fileId)
     except BaseException:
-        return "Invalid file id!"
+        return traceback.format_exc()
 
 @app.route("/addfile/", methods=['POST'])
 def add():
@@ -42,11 +43,11 @@ def add():
         name = filename.split(".")
         if len(name[1]) > 4:
             return "Invalid file extension!"
-        info = os.stat(app.config['UPLOAD_FOLDER'] + path + filename)
-        db.insert([name[0], name[1], info[6], path, comment])
-        if (len(path) != 0):
+        if (len(path) != 0) and not(os.path.exists(app.config['UPLOAD_FOLDER'] + path)):
             os.makedirs(app.config['UPLOAD_FOLDER'] + path)
         file.save(app.config['UPLOAD_FOLDER'] + path + filename)
+        info = os.stat(app.config['UPLOAD_FOLDER'] + path + filename)
+        db.insert([name[0], name[1], info[6], path, comment])
         return "True"
     except BaseException:
         return traceback.format_exc()

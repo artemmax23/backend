@@ -1,5 +1,5 @@
-from DBInterfaceClass import DBInterface
-from fileClass import File, Session
+from DataSources.DBInterfaceClass import DBInterface
+from DataSources.fileClass import File, Session
 import json
 
 class MySqlDb(DBInterface):
@@ -11,7 +11,7 @@ class MySqlDb(DBInterface):
                  'path': p.path, 'created_at': p.created_at.__str__(),
                  'updated_at': p.updated_at.__str__(),
                  'comment': p.comment} for p in result]
-        return json.dumps(data)
+        return json.dumps(data, ensure_ascii=False)
 
     def one_info(self, file_id):
         result = self.session.query(File).filter(File.id == file_id).first()
@@ -19,7 +19,7 @@ class MySqlDb(DBInterface):
                 'path': result.path, 'created_at': result.created_at.__str__(),
                 'updated_at': result.updated_at.__str__(),
                 'comment': result.comment}
-        return json.dumps(data)
+        return json.dumps(data, ensure_ascii=False)
 
     def insert(self, data):
         if self.session.query(File).filter(File.name == data[0]).filter(
