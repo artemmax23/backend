@@ -62,3 +62,6 @@ def delete(file_id):
         return "True"
     else:
         return "Invalid file id!"
+
+if __name__ == "__main__":
+    app.run()
