@@ -1,12 +1,16 @@
+import traceback
+
 from flask import Flask, request, g
 from werkzeug.utils import secure_filename
 from fileClass import Session, File
 import os
 import json
 from auxillary import auxillary
+from DBInterfaceClass import MySqlDb
 
 app = Flask(__name__)
 app.register_blueprint(auxillary)
+db = MySqlDb()
 
 UPLOAD_FOLDER = 'D:/downloads/'
 
@@ -21,24 +25,14 @@ def before_request():
     if not hasattr(g, 'session'):
         g.session = session
 
-@app.route("/")
+@app.route("/all/")
 def home():
-    result = session.query(File).all()
-    data = [{'name': p.name, 'extension': p.extension, 'size': p.size,
-             'path': p.path, 'created_at': p.created_at.__str__(),
-             'updated_at': p.updated_at.__str__(),
-             'comment': p.comment} for p in result]
-    return json.dumps(data)
+    return db.all()
 
 @app.route("/oneinfo/<fileId>", methods=['GET'])
 def oneinfo(fileId):
     try:
-        result = session.query(File).filter(File.id == fileId).first()
-        data = {'name': result.name, 'extension': result.extension, 'size': result.size,
-             'path': result.path, 'created_at': result.created_at.__str__(),
-              'updated_at': result.updated_at.__str__(),
-             'comment': result.comment}
-        return json.dumps(data)
+        return db.oneInfo(fileId)
     except BaseException:
         return "Invalid file id!"
 
@@ -47,33 +41,29 @@ def add():
     path = str(request.form['path'])
     if (len(path) != 0) and (path[-1] != '/'):
         path += "/"
-    if (len(path) != 0):
-        os.makedirs(app.config['UPLOAD_FOLDER'] + path)
     file = request.files['file']
     filename = secure_filename(file.filename)
-    file.save(app.config['UPLOAD_FOLDER'] + path + filename)
-    info = os.stat(app.config['UPLOAD_FOLDER'] + path + filename)
-    name = filename.split(".")
-    if len(name[1]) > 4:
-        return "Invalid file extension!"
     comment = str(request.form['comment'])
-    if session.query(File).filter(File.name == name[0]).filter(File.extension == name[1]).filter(File.path == path).first() != None:
-        return "Such file exist!"
-    file = File(name[0], name[1], info[6], path, comment)
-    session.add(file)
-    session.commit()
-
-    return "True"
+    try:
+        name = filename.split(".")
+        if len(name[1]) > 4:
+            return "Invalid file extension!"
+        info = os.stat(app.config['UPLOAD_FOLDER'] + path + filename)
+        db.insert([name[0], name[1], info[6], path, comment])
+        if (len(path) != 0):
+            os.makedirs(app.config['UPLOAD_FOLDER'] + path)
+        file.save(app.config['UPLOAD_FOLDER'] + path + filename)
+        return "True"
+    except BaseException:
+        return traceback.format_exc()
 
 @app.route("/deletefile/<fileId>", methods=['GET'])
 def delete(fileId):
-    result = session.query(File).filter(File.id == fileId).first()
+    result = db.remove(fileId)
     if (result != None):
         os.remove(app.config['UPLOAD_FOLDER'] + result.path + result.name + '.' + result.extension)
         if len(os.listdir(app.config['UPLOAD_FOLDER'] + result.path)) == 0:
             os.removedirs(app.config['UPLOAD_FOLDER'] + result.path)
-        session.delete(result)
-        session.commit()
         return "True"
     else:
         return "Invalid file id!"
