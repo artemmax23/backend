@@ -1,12 +1,22 @@
-from sqlalchemy import create_engine, Column, Integer, String, TIMESTAMP
 import datetime
-from sqlalchemy.orm import sessionmaker
-from sqlalchemy.ext.declarative import declarative_base
+import os
 
-engine = create_engine('mysql://root:123@localhost:3306/filestorage', echo=False)
+from sqlalchemy import create_engine, Column, Integer, String, TIMESTAMP
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import sessionmaker
+
+user = os.getenv('DB_USER')
+host = os.getenv('DB_HOST')
+password = os.getenv('DB_PASSWORD')
+database = os.getenv('DB_NAME')
+port = os.getenv('DB_PORT')
+
+engine = create_engine(f"postgresql+pg8000://{user}:{password}@{host}:{port}/{database}", echo=False)
 Session = sessionmaker(bind=engine)
 
 Base = declarative_base()
+
+
 class File(Base):
     __tablename__ = "files"
     id = Column(Integer, primary_key=True, autoincrement=True)
@@ -24,5 +34,6 @@ class File(Base):
         self.size = size
         self.path = path
         self.comment = comment
+
 
 Base.metadata.create_all(engine)

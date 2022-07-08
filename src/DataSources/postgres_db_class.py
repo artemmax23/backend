@@ -1,8 +1,10 @@
-from DataSources.db_interface_class import DBInterface
-from DataSources.file_сlass import File, Session
 import json
 
-class MySqlDb(DBInterface):
+from .db_interface_class import DBInterface
+from .file_сlass import File, Session
+
+
+class PostgresDb(DBInterface):
     session = Session()
 
     def all(self):
@@ -24,8 +26,8 @@ class MySqlDb(DBInterface):
     def insert(self, data):
         if self.session.query(File).filter(File.name == data[0]).filter(
                 File.extension == data[1]).filter(
-                File.path == data[3]).first() != None:
-             raise Exception('Such file exist!')
+            File.path == data[3]).first() != None:
+            raise Exception('Such file exist!')
         file = File(data[0], data[1], data[2], data[3], data[4])
         self.session.add(file)
         self.session.commit()

@@ -1,0 +1,28 @@
+version: "3.8"
+services:
+  app:
+    build:
+        context: .
+        dockerfile: Dockerfile
+    environment:
+      DB_HOST: db
+      DB_NAME: filestorage
+      DB_USER: root
+      DB_PASSWORD: root
+      DB_PORT: 5432
+      UPLOAD_FOLDER: '/downloads'
+    links:
+      - db
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./src:/app/src
+
+  db:
+    image: postgres:latest
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_PASSWORD: root
+      POSTGRES_DB: filestorage
+      POSTGRES_USER: root
