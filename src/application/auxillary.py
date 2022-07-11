@@ -1,24 +1,19 @@
-import traceback
-from flask import Blueprint, request, send_from_directory, g
+import datetime
 import json
 import os
-import datetime
+import traceback
+from flask import Blueprint, request, send_from_directory, g
+from .data_sources.postgres_db_class import PostgresDb
 
 auxillary = Blueprint('auxillary', __name__)
-UPLOAD_FOLDER = None
-db = None
-
-@auxillary.before_request
-def before_request():
-    global UPLOAD_FOLDER
-    global db
-    UPLOAD_FOLDER = g.get('upload_folder')
-    db = g.get('db')
+UPLOAD_FOLDER = os.getenv('UPLOAD_FOLDER', 'D:/downloads')
+db = PostgresDb()
 
 @auxillary.route("/find/", methods=['POST'])
 def find():
     path = str(request.form['path'])
     return db.find(path)
+
 
 @auxillary.route("/download/<fileId>", methods=['GET'])
 def download(fileId):
@@ -28,13 +23,14 @@ def download(fileId):
     else:
         return "Such file doesn't exist!"
 
+
 @auxillary.route("/change/", methods=['POST'])
 def change():
     try:
         fileId = int(request.form['file_id'])
-        name =  str(request.form['name'])
-        path =  str(request.form['path'])
-        comment =  str(request.form['comment'])
+        name = str(request.form['name'])
+        path = str(request.form['path'])
+        comment = str(request.form['comment'])
 
         if (len(path) != 0) and (path[-1] != '/'):
             path += "/"
@@ -48,7 +44,7 @@ def change():
         if path != "":
             st['path'] = path
             new_path += path
-            if not(os.path.exists(new_path)):
+            if not (os.path.exists(new_path)):
                 os.makedirs(new_path)
         else:
             new_path += temp['path']
@@ -74,9 +70,9 @@ def change():
     except BaseException:
         return traceback.format_exc()
 
+
 @auxillary.route("/sync/")
 def sync():
-
     result = json.loads(db.all())
     db_paths = [UPLOAD_FOLDER + p['path'] + p['name'] + '.' + p['extension'] for p in result]
     cnt = UPLOAD_FOLDER.count('/')
@@ -86,7 +82,7 @@ def sync():
             path = os.path.join(address, name)
             path = path.replace('\\', '/')
             address = address.replace('\\', '/')
-            if not(path in db_paths):
+            if not (path in db_paths):
                 filename = name.split('.')
                 info = os.stat(path)
                 relative = address.split('/', cnt)[cnt]
@@ -107,7 +103,6 @@ def sync():
         else:
             fullname = relative[0]
             path = ''
-
 
         if len(os.listdir(UPLOAD_FOLDER + path)) == 0:
             os.removedirs(UPLOAD_FOLDER + path)
