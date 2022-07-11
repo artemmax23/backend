@@ -2,9 +2,9 @@ import datetime
 import json
 import os
 import traceback
-from flask import Blueprint, request, send_from_directory, g
-from werkzeug.utils import secure_filename
 from data_sources.connect import Connect
+from flask import Blueprint, request, send_from_directory
+from werkzeug.utils import secure_filename
 
 main = Blueprint('main', __name__)
 UPLOAD_FOLDER = os.getenv('UPLOAD_FOLDER', 'D:/downloads')

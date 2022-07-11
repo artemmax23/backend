@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 
+
 class DBInterface(ABC):
 
     @abstractmethod
@@ -33,5 +34,5 @@ class DBInterface(ABC):
         pass
 
     @abstractmethod
-    def delete_by_path(self, name: str, extension:str, path: str):
+    def delete_by_path(self, name: str, extension: str, path: str):
         pass
