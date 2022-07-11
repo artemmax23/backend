@@ -51,6 +51,8 @@ def add():
             return "Invalid file extension!"
         if (len(path) != 0) and not (os.path.exists(app.config['UPLOAD_FOLDER'] + path)):
             os.makedirs(app.config['UPLOAD_FOLDER'] + path)
+        else:
+            os.makedirs(app.config['UPLOAD_FOLDER'])
         file.save(app.config['UPLOAD_FOLDER'] + path + filename)
         info = os.stat(app.config['UPLOAD_FOLDER'] + path + filename)
         db.insert([name[0], name[1], info[6], path, comment])

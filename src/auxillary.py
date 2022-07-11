@@ -31,7 +31,7 @@ def download(fileId):
 @auxillary.route("/change/", methods=['POST'])
 def change():
     try:
-        fileId = int(request.form['fileId'])
+        fileId = int(request.form['file_id'])
         name =  str(request.form['name'])
         path =  str(request.form['path'])
         comment =  str(request.form['comment'])
@@ -107,6 +107,7 @@ def sync():
         else:
             fullname = relative[0]
             path = ''
+
 
         if len(os.listdir(UPLOAD_FOLDER + path)) == 0:
             os.removedirs(UPLOAD_FOLDER + path)
