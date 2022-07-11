@@ -36,13 +36,15 @@ def add():
         name = filename.split(".")
         if len(name[1]) > 4:
             return "Invalid file extension!"
-        if (len(path) != 0) and not (os.path.exists(UPLOAD_FOLDER + path)):
-            os.makedirs(UPLOAD_FOLDER + path)
-        else:
-            os.makedirs(UPLOAD_FOLDER)
+        if not (os.path.exists(UPLOAD_FOLDER + path)):
+            if len(path) != 0:
+                os.makedirs(UPLOAD_FOLDER + path)
+            else:
+                os.makedirs(UPLOAD_FOLDER)
+
         file.save(UPLOAD_FOLDER + path + filename)
         info = os.stat(UPLOAD_FOLDER + path + filename)
-        db.insert([name[0], name[1], info[6], path, comment])
+        db.insert(name[0], name[1], info[6], path, comment)
         return "True"
     except BaseException:
         return traceback.format_exc()

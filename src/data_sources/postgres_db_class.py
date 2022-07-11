@@ -55,7 +55,7 @@ class PostgresDb(DBInterface):
 
     def update(self, file_id: int, name: str,
                path: str, comment: str):
-        temp: dict = {'name': name, 'path': path, 'comment': comment, 'updated_at': datetime.datetime.now()}
+        data: dict = {'name': name, 'path': path, 'comment': comment, 'updated_at': datetime.datetime.now()}
         self.session.query(File).filter(File.id == int(file_id)).update(data)
         self.session.commit()
 
@@ -66,8 +66,8 @@ class PostgresDb(DBInterface):
         else:
             return result.path + result.name + '.' + result.extension
 
-    def delete_by_path(self, path: str):
-        result = self.session.query(File).filter(File.name == path[0]).filter(File.extension == path[1]).filter(
-            File.path == path[2]).first()
+    def delete_by_path(self, name: str, extension:str, path: str):
+        result = self.session.query(File).filter(File.name == name).filter(File.extension == extension).filter(
+            File.path == path).first()
         self.session.delete(result)
         self.session.commit()

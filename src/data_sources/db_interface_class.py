@@ -33,5 +33,5 @@ class DBInterface(ABC):
         pass
 
     @abstractmethod
-    def delete_by_path(self, path: str):
+    def delete_by_path(self, name: str, extension:str, path: str):
         pass

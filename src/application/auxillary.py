@@ -26,8 +26,8 @@ def download(file_id):
         return "Such file doesn't exist!"
 
 
-@auxillary.route("/change/", methods=['POST'])
-def change():
+@auxillary.route("/update/", methods=['POST'])
+def update():
     try:
         file_id = int(request.form['file_id'])
         name = str(request.form['name'])
@@ -50,6 +50,7 @@ def change():
                 os.makedirs(new_path)
         else:
             new_path += temp['path']
+            st['path'] = temp['path']
 
         if name != "":
             st['name'] = name
@@ -88,7 +89,7 @@ def sync():
                 relative = address.split('/', cnt)[cnt]
                 if len(relative) != 0:
                     relative += '/'
-                db.insert([filename[0], filename[1], info[6], relative, ""])
+                db.insert(filename[0], filename[1], info[6], relative, "")
             else:
                 db_paths.remove(path)
 
@@ -104,10 +105,10 @@ def sync():
             fullname = relative[0]
             path = ''
 
-        if len(os.listdir(UPLOAD_FOLDER + path)) == 0:
+        if (os.path.exists(UPLOAD_FOLDER + path)) and len(os.listdir(UPLOAD_FOLDER + path)) == 0:
             os.removedirs(UPLOAD_FOLDER + path)
         name, extension = fullname.split('.', 1)
 
-        db.delete_by_path([name, extension, path])
+        db.delete_by_path(name, extension, path)
 
     return "True"
