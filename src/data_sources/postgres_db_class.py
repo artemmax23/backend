@@ -1,3 +1,4 @@
+import datetime
 import json
 
 from .db_interface_class import DBInterface
@@ -15,7 +16,7 @@ class PostgresDb(DBInterface):
                  'comment': p.comment} for p in result]
         return json.dumps(data, ensure_ascii=False)
 
-    def one_info(self, file_id):
+    def one_info(self, file_id: int):
         result = self.session.query(File).filter(File.id == int(file_id)).first()
         data = {'id': result.id, 'name': result.name, 'extension': result.extension, 'size': result.size,
                 'path': result.path, 'created_at': result.created_at.__str__(),
@@ -23,23 +24,24 @@ class PostgresDb(DBInterface):
                 'comment': result.comment}
         return json.dumps(data, ensure_ascii=False)
 
-    def insert(self, data):
-        if self.session.query(File).filter(File.name == data[0]).filter(
-                File.extension == data[1]).filter(
-            File.path == data[3]).first() != None:
+    def insert(self, name: str, extension: str,
+               size: int, path: str, comment: str):
+        if self.session.query(File).filter(File.name == name).filter(
+                File.extension == extension).filter(
+            File.path == path).first() != None:
             raise Exception('Such file exist!')
-        file = File(data[0], data[1], data[2], data[3], data[4])
+        file = File(name, extension, size, path, comment)
         self.session.add(file)
         self.session.commit()
 
-    def remove(self, file_id):
+    def remove(self, file_id: int):
         result = self.session.query(File).filter(File.id == int(file_id)).first()
         if (result != None):
             self.session.delete(result)
             self.session.commit()
         return result
 
-    def find(self, path):
+    def find(self, path: str):
         path = "%{}%".format(path)
         result = self.session.query(File).filter(File.path.like(path)).all()
         if result:
@@ -51,18 +53,20 @@ class PostgresDb(DBInterface):
         else:
             return "Such files doesn't exist!"
 
-    def update(self, file_id, data):
+    def update(self, file_id: int, name: str,
+               path: str, comment: str):
+        temp: dict = {'name': name, 'path': path, 'comment': comment, 'updated_at': datetime.datetime.now()}
         self.session.query(File).filter(File.id == int(file_id)).update(data)
         self.session.commit()
 
-    def get_path(self, file_id):
+    def get_path(self, file_id: int):
         result = self.session.query(File).filter(File.id == int(file_id)).first()
         if result == None:
             return result
         else:
             return result.path + result.name + '.' + result.extension
 
-    def delete_by_path(self, path):
+    def delete_by_path(self, path: str):
         result = self.session.query(File).filter(File.name == path[0]).filter(File.extension == path[1]).filter(
             File.path == path[2]).first()
         self.session.delete(result)

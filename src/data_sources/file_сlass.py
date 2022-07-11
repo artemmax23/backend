@@ -19,6 +19,15 @@ Base = declarative_base()
 
 class File(Base):
     __tablename__ = "files"
+    id: int
+    name: str
+    extension: str
+    size: int
+    path: str
+    created_at: datetime
+    updated_at: datetime
+    comment: str
+
     id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(String(100))
     extension = Column(String(4))
@@ -28,7 +37,8 @@ class File(Base):
     updated_at = Column(TIMESTAMP, default=datetime.datetime.now())
     comment = Column(String(200))
 
-    def __init__(self, name, extension, size, path, comment):
+    def __init__(self, name: str, extension: str,
+                 size: int, path: str, comment: str):
         self.name = name
         self.extension = extension
         self.size = size

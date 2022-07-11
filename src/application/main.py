@@ -3,13 +3,12 @@ import json
 import os
 import traceback
 from flask import Blueprint, request, send_from_directory, g
-from flask import Flask, request, g
 from werkzeug.utils import secure_filename
-from .data_sources.postgres_db_class import PostgresDb
+from data_sources.connect import Connect
 
 main = Blueprint('main', __name__)
 UPLOAD_FOLDER = os.getenv('UPLOAD_FOLDER', 'D:/downloads')
-db = PostgresDb()
+db = Connect().connect()
 
 
 @main.route("/all/")
@@ -18,7 +17,7 @@ def home():
 
 
 @main.route("/one/<file_id>", methods=['GET'])
-def one_info(file_id):
+def one_info(file_id: int):
     try:
         return db.one_info(file_id)
     except BaseException:
@@ -50,7 +49,7 @@ def add():
 
 
 @main.route("/delete/<file_id>", methods=['GET'])
-def delete(file_id):
+def delete(file_id: int):
     result = db.remove(file_id)
     if (result != None):
         os.remove(UPLOAD_FOLDER + result.path + result.name + '.' + result.extension)

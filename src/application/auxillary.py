@@ -3,11 +3,13 @@ import json
 import os
 import traceback
 from flask import Blueprint, request, send_from_directory, g
-from .data_sources.postgres_db_class import PostgresDb
+
+from data_sources.connect import Connect
 
 auxillary = Blueprint('auxillary', __name__)
 UPLOAD_FOLDER = os.getenv('UPLOAD_FOLDER', 'D:/downloads')
-db = PostgresDb()
+db = Connect().connect()
+
 
 @auxillary.route("/find/", methods=['POST'])
 def find():
@@ -58,14 +60,12 @@ def change():
         if comment != "":
             st['comment'] = comment
 
-        st['updated_at'] = datetime.datetime.now()
-
         if new_path != old_path:
             os.replace(old_path, new_path)
             if len(os.listdir(UPLOAD_FOLDER + temp['path'])) == 0:
                 os.removedirs(UPLOAD_FOLDER + temp['path'])
 
-        db.update(file_id, st)
+        db.update(file_id, st['name'], st['path'], st['comment'])
         return "True"
     except BaseException:
         return traceback.format_exc()

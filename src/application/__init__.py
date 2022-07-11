@@ -1,7 +1,9 @@
+import os
+from flask import Blueprint, Flask, g
+
 from .auxillary import auxillary
 from .main import main
-from flask import Blueprint, Flask, g
-import os
+
 
 def create_app():
     app = Flask(__name__)
