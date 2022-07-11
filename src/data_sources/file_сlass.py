@@ -5,11 +5,11 @@ from sqlalchemy import create_engine, Column, Integer, String, TIMESTAMP
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
-user = os.getenv('DB_USER')
-host = os.getenv('DB_HOST')
-password = os.getenv('DB_PASSWORD')
-database = os.getenv('DB_NAME')
-port = os.getenv('DB_PORT')
+user = os.getenv('DB_USER', 'root')
+host = os.getenv('DB_HOST', 'localhost')
+password = os.getenv('DB_PASSWORD', 'root')
+database = os.getenv('DB_NAME', 'filestorage')
+port = os.getenv('DB_PORT', '5432')
 
 engine = create_engine(f"postgresql+pg8000://{user}:{password}@{host}:{port}/{database}", echo=False)
 Session = sessionmaker(bind=engine)

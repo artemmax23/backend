@@ -81,3 +81,5 @@ id файла, новое имя файла, новый путь его расп
 - db_interface_class.py - содержит интерфейс для источников данных
 
 - postgres_db_class.py - содержит реализацию интерфейса DBInterface для БД
+
+- connect.py - реализация паттерна singltone для переменной типа DBInterface
