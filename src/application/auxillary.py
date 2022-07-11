@@ -15,9 +15,9 @@ def find():
     return db.find(path)
 
 
-@auxillary.route("/download/<fileId>", methods=['GET'])
-def download(fileId):
-    path = db.get_path(fileId)
+@auxillary.route("/download/<file_id>", methods=['GET'])
+def download(file_id):
+    path = db.get_path(file_id)
     if path != None:
         return send_from_directory(directory=UPLOAD_FOLDER, path=path)
     else:
@@ -27,7 +27,7 @@ def download(fileId):
 @auxillary.route("/change/", methods=['POST'])
 def change():
     try:
-        fileId = int(request.form['file_id'])
+        file_id = int(request.form['file_id'])
         name = str(request.form['name'])
         path = str(request.form['path'])
         comment = str(request.form['comment'])
@@ -35,7 +35,7 @@ def change():
         if (len(path) != 0) and (path[-1] != '/'):
             path += "/"
 
-        temp = json.loads(db.one_info(fileId))
+        temp = json.loads(db.one_info(file_id))
         old_path = UPLOAD_FOLDER + temp['path'] + temp['name'] + '.' + temp['extension']
 
         st = dict()
@@ -65,7 +65,7 @@ def change():
             if len(os.listdir(UPLOAD_FOLDER + temp['path'])) == 0:
                 os.removedirs(UPLOAD_FOLDER + temp['path'])
 
-        db.update(fileId, st)
+        db.update(file_id, st)
         return "True"
     except BaseException:
         return traceback.format_exc()

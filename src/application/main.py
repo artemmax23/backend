@@ -17,7 +17,7 @@ def home():
     return db.all()
 
 
-@main.route("/oneinfo/<file_id>", methods=['GET'])
+@main.route("/one/<file_id>", methods=['GET'])
 def one_info(file_id):
     try:
         return db.one_info(file_id)
@@ -25,7 +25,7 @@ def one_info(file_id):
         return traceback.format_exc()
 
 
-@main.route("/addfile/", methods=['POST'])
+@main.route("/add/", methods=['POST'])
 def add():
     path = str(request.form['path'])
     if (len(path) != 0) and (path[-1] != '/'):
@@ -49,7 +49,7 @@ def add():
         return traceback.format_exc()
 
 
-@main.route("/deletefile/<file_id>", methods=['GET'])
+@main.route("/delete/<file_id>", methods=['GET'])
 def delete(file_id):
     result = db.remove(file_id)
     if (result != None):
