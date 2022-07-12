@@ -1,8 +1,8 @@
 import os
 from flask import Blueprint, Flask, g
 
-from .auxillary import auxillary
-from .main import main
+from .auxillary_bp import auxillary_bp
+from .main_bp import main_bp
 
 
 def create_app():
@@ -10,7 +10,7 @@ def create_app():
 
     app.config['MAX_CONTENT_LENGTH'] = 16 * 1000 * 1000
 
-    app.register_blueprint(auxillary)
-    app.register_blueprint(main)
+    app.register_blueprint(auxillary_bp)
+    app.register_blueprint(main_bp)
 
     return app

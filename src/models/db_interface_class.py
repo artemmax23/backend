@@ -8,7 +8,7 @@ class DBInterface(ABC):
         pass
 
     @abstractmethod
-    def one_info(self, file_id: int):
+    def one(self, file_id: int):
         pass
 
     @abstractmethod

@@ -8,7 +8,7 @@ class Connect:
     db = staticmethod(None)
 
     @staticmethod
-    def connect():
+    def connect() -> PostgresDb:
         if Connect.db is None:
             Connect.db = PostgresDb()
         return Connect.db
