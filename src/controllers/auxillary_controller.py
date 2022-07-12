@@ -1,7 +1,7 @@
 import json
 import traceback
-from data_sources.connect import Connect
 from flask import request
+from repository.connect import Connect
 from services.files_storage_system import FilesStorageSystem
 
 system = FilesStorageSystem.get_system()
