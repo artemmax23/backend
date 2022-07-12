@@ -17,7 +17,7 @@ services:
       DB_USER: root
       DB_PASSWORD: root
       DB_PORT: 5432
-      UPLOAD_FOLDER: '/downloads/'
+      UPLOAD_FOLDER: '/downloads'
     links:
       - db
     ports:

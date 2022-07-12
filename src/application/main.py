@@ -27,8 +27,13 @@ def one_info(file_id: int):
 @main.route("/add/", methods=['POST'])
 def add():
     path = str(request.form['path'])
-    if (len(path) != 0) and (path[-1] != '/'):
-        path += "/"
+    if len(path) != 0:
+        if path[-1] != '/':
+            path += "/"
+        if path[0] != '/':
+            path = '/' + path
+    else:
+        path = "/"
     file = request.files['file']
     filename = secure_filename(file.filename)
     comment = str(request.form['comment'])
