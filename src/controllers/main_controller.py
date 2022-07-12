@@ -3,28 +3,24 @@ import json
 import os
 import traceback
 from data_sources.connect import Connect
-from flask import Blueprint, request, send_from_directory
+from flask import request, send_from_directory
 from werkzeug.utils import secure_filename
 
-main = Blueprint('main', __name__)
 UPLOAD_FOLDER = os.getenv('UPLOAD_FOLDER', 'D:/downloads')
 db = Connect().connect()
 
 
-@main.route("/all/")
-def home():
+def all():
     return db.all()
 
 
-@main.route("/one/<file_id>", methods=['GET'])
-def one_info(file_id: int):
+def one(file_id: int):
     try:
         return db.one_info(file_id)
     except BaseException:
         return traceback.format_exc()
 
 
-@main.route("/add/", methods=['POST'])
 def add():
     path = str(request.form['path'])
     if len(path) != 0:
@@ -55,7 +51,6 @@ def add():
         return traceback.format_exc()
 
 
-@main.route("/delete/<file_id>", methods=['GET'])
 def delete(file_id: int):
     result = db.remove(file_id)
     if (result != None):

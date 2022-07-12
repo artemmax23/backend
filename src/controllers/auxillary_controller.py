@@ -3,20 +3,17 @@ import json
 import os
 import traceback
 from data_sources.connect import Connect
-from flask import Blueprint, request, send_from_directory
+from flask import request, send_from_directory
 
-auxillary = Blueprint('auxillary', __name__)
 UPLOAD_FOLDER = os.getenv('UPLOAD_FOLDER', 'D:/downloads')
 db = Connect().connect()
 
 
-@auxillary.route("/find/", methods=['POST'])
 def find():
     path = str(request.form['path'])
     return db.find(path)
 
 
-@auxillary.route("/download/<file_id>", methods=['GET'])
 def download(file_id):
     path = db.get_path(file_id)
     if path != None:
@@ -25,7 +22,6 @@ def download(file_id):
         return "Such file doesn't exist!"
 
 
-@auxillary.route("/update/", methods=['POST'])
 def update():
     try:
         file_id = int(request.form['file_id'])
@@ -71,11 +67,10 @@ def update():
         return traceback.format_exc()
 
 
-@auxillary.route("/sync/")
 def sync():
     result = json.loads(db.all())
     db_paths = [UPLOAD_FOLDER + p['path'] + p['name'] + '.' + p['extension'] for p in result]
-    cnt = UPLOAD_FOLDER.count('/')
+    cnt = UPLOAD_FOLDER.count('/') + 1
 
     for address, dirs, files in os.walk(UPLOAD_FOLDER):
         for name in files:
@@ -87,7 +82,7 @@ def sync():
                 info = os.stat(path)
                 relative = address.split('/', cnt)[cnt]
                 if len(relative) != 0:
-                    relative += '/'
+                    relative = '/' + relative + '/'
                 db.insert(filename[0], filename[1], info[6], relative, "")
             else:
                 db_paths.remove(path)
@@ -99,10 +94,10 @@ def sync():
             fullname, path = relative[0][::-1].split('/', 1)
             path = path[::-1]
             fullname = fullname[::-1]
-            path += '/'
+            path = '/' + path + '/'
         else:
             fullname = relative[0]
-            path = ''
+            path = '/'
 
         if (os.path.exists(UPLOAD_FOLDER + path)) and len(os.listdir(UPLOAD_FOLDER + path)) == 0:
             os.removedirs(UPLOAD_FOLDER + path)

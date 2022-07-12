@@ -1,8 +1,7 @@
 import datetime
 import json
-
-from .db_interface_class import DBInterface
-from .file_сlass import File, Session
+from models.db_interface_class import DBInterface
+from models.file_class import File, Session
 
 
 class PostgresDb(DBInterface):
@@ -66,7 +65,7 @@ class PostgresDb(DBInterface):
         else:
             return result.path + result.name + '.' + result.extension
 
-    def delete_by_path(self, name: str, extension:str, path: str):
+    def delete_by_path(self, name: str, extension: str, path: str):
         result = self.session.query(File).filter(File.name == name).filter(File.extension == extension).filter(
             File.path == path).first()
         self.session.delete(result)
