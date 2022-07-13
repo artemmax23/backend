@@ -10,7 +10,7 @@ UPLOAD_FOLDER = os.getenv('UPLOAD_FOLDER', 'D:/downloads')
 
 class LocalFileStorage(StorageInterface):
 
-    def add(self, file, path: str, comment: str) -> str:
+    def add(self, file, path: str) -> str:
         if len(path) != 0:
             if path[-1] != '/':
                 path += "/"
@@ -32,8 +32,8 @@ class LocalFileStorage(StorageInterface):
 
         return path
 
-    def delete(self, path: str):
-        os.remove(UPLOAD_FOLDER + result.path + result.name + '.' + result.extension)
+    def delete(self, file):
+        os.remove(UPLOAD_FOLDER + file.path + file.name + '.' + file.extension)
         if len(os.listdir(UPLOAD_FOLDER + result.path)) == 0:
             os.removedirs(UPLOAD_FOLDER + result.path)
 

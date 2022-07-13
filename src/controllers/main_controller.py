@@ -28,7 +28,7 @@ def add():
     name = filename.split(".")
     info = os.fstat(file.fileno()).st_size
     try:
-        path = system.add(file, path, comment)
+        path = system.add(file, path)
         db.insert(name[0], name[1], info, path, comment)
         return "True"
     except BaseException:
@@ -38,7 +38,7 @@ def add():
 def delete(file_id: int):
     result = db.remove(file_id)
     if not (result is None):
-        system.delete(file_id)
+        system.delete(result)
         return "True"
     else:
         return "Invalid file id!"

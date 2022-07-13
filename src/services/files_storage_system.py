@@ -1,4 +1,5 @@
 from .local_filestorage import LocalFileStorage
+from .mimio_storage import MinioFileStorage
 
 
 class FilesStorageSystem:
@@ -11,5 +12,5 @@ class FilesStorageSystem:
     @staticmethod
     def get_system():
         if FilesStorageSystem.system is None:
-            FilesStorageSystem.system = LocalFileStorage()
+            FilesStorageSystem.system = MinioFileStorage()
         return FilesStorageSystem.system

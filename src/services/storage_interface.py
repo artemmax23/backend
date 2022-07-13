@@ -4,11 +4,11 @@ from abc import ABC, abstractmethod
 class StorageInterface(ABC):
 
     @abstractmethod
-    def add(self, file, path: str, comment: str) -> str:
+    def add(self, file, path: str):
         pass
 
     @abstractmethod
-    def delete(self, path: str):
+    def delete(self, file):
         pass
 
     @abstractmethod

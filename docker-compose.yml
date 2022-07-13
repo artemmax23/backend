@@ -28,13 +28,14 @@ services:
       DB_PASSWORD: root
       DB_PORT: 5432
       UPLOAD_FOLDER: '/downloads'
-      MINIO_SERVER_ACCESS_KEY: minio-access-key
-      MINIO_SERVER_SECRET_KEY: minio-secret-key
+      BOTO_URL: 'http://minio:9000'
+      BOTO_DEFAULT_BUCKET: default
     links:
       - db
     ports:
       - "5000:5000"
     volumes:
+      - ./boto/credentials:/root/.aws/credentials
       - ./src:/app/src
 
   db:
