@@ -58,12 +58,6 @@ class PostgresDb(DBInterface):
         self.session.query(File).filter(File.id == int(file_id)).update(data)
         self.session.commit()
 
-    def get_path(self, file_id: int) -> File or str:
-        result = self.session.query(File).filter(File.id == int(file_id)).first()
-        if result == None:
-            return result
-        else:
-            return result.path + result.name + '.' + result.extension
 
     def delete_by_path(self, name: str, extension: str, path: str):
         result = self.session.query(File).filter(File.name == name).filter(File.extension == extension).filter(

@@ -16,7 +16,7 @@ class StorageInterface(ABC):
         pass
 
     @abstractmethod
-    def download(self, path: str):
+    def download(self, name: str, extension: str, path: str):
         pass
 
     @abstractmethod

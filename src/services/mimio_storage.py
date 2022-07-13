@@ -2,7 +2,7 @@ import boto3
 import datetime
 import json
 import os
-from flask import send_from_directory
+import io
 from werkzeug.utils import secure_filename
 
 from .storage_interface import StorageInterface
@@ -29,45 +29,36 @@ class MinioFileStorage(StorageInterface):
             Bucket=self.default_file_bucket,
             Key=file.path
         )
-        pass
 
     def update(self, name: str, path: str, extension: str, old_name: str, old_path: str) -> dict:
-        # if (len(path) != 0) and (path[-1] != '/'):
-        #     path += "/"
-        #
-        # old_full_path = UPLOAD_FOLDER + old_path + old_name + '.' + extension
-        #
-        # st = dict()
-        # new_path = UPLOAD_FOLDER
-        #
-        # if path != "":
-        #     st['path'] = path
-        #     new_path += path
-        #     if not (os.path.exists(new_path)):
-        #         os.makedirs(new_path)
-        # else:
-        #     new_path += old_path
-        #     st['path'] = old_path
-        #
-        # if name != "":
-        #     st['name'] = name
-        #     new_path += name
-        # else:
-        #     new_path += old_name
-        #
-        # new_path += '.' + extension
-        #
-        # if new_path != old_full_path:
-        #     os.replace(old_full_path, new_path)
-        #     if len(os.listdir(UPLOAD_FOLDER + old_path)) == 0:
-        #         os.removedirs(UPLOAD_FOLDER + old_path)
-        #
-        # return st
-        pass
+        copy_source = {
+                'Bucket': self.default_file_bucket,
+                'Key': old_path
+            }
 
-    def download(self, path: str):
-        # return send_from_directory(directory=UPLOAD_FOLDER, path=path)
-        pass
+        if path != "":
+            self.s3.copy_object(
+                Bucket=self.default_file_bucket,
+                CopySource=copy_source,
+                Key=path
+            )
+
+            self.s3.delete_object(
+                Bucket=self.default_file_bucket,
+                Key=old_path
+            )
+            return path
+
+        return old_path
+
+    def download(self, name: str, extension: str, path: str):
+        file = io.BytesIO()
+        self.s3.download_fileobj(
+            self.default_file_bucket,
+            path,
+            file
+        )
+        return file
 
     def sync(self, all: str) -> list:
         # result = json.loads(all)

@@ -1,6 +1,6 @@
 import json
 import traceback
-from flask import request
+from flask import request, send_file
 from repository.connect import Connect
 from services.files_storage_system import FilesStorageSystem
 
@@ -14,9 +14,14 @@ def find():
 
 
 def download(file_id):
-    path = db.get_path(file_id)
-    if path != None:
-        return system.download(path)
+    file = json.loads(db.one(file_id))
+    if not (file is None):
+        sd_file = system.download(file['name'], file['extension'], file['path'])
+        sd_file.seek(0)
+        return send_file(
+            sd_file,
+            mimetype='txt/plain', 
+            download_name=(file['name'] + '.' + file['extension']))
     else:
         return "Such file doesn't exist!"
 
@@ -29,12 +34,12 @@ def update():
 
     try:
         temp = json.loads(db.one(file_id))
-        st = system.update(name, path, temp['extension'], temp['name'], temp['path'])
-        if comment != "":
-            st['comment'] = comment
-        else:
-            st['comment'] = temp['comment']
-        db.update(file_id, st['name'], st['path'], st['comment'])
+        path = system.update(name, path, temp['extension'], temp['name'], temp['path'])
+        if name == "":
+            name = temp['name']
+        if comment == "":
+            comment = temp['comment']
+        db.update(file_id, name, path, comment)
         return "True"
     except BaseException:
         return traceback.format_exc()

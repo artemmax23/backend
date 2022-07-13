@@ -30,9 +30,5 @@ class DBInterface(ABC):
         pass
 
     @abstractmethod
-    def get_path(self, file_id: int):
-        pass
-
-    @abstractmethod
     def delete_by_path(self, name: str, extension: str, path: str):
         pass

@@ -1,6 +1,6 @@
 import json
 import os
-from flask import send_from_directory
+import io
 from werkzeug.utils import secure_filename
 
 from .storage_interface import StorageInterface
@@ -37,26 +37,23 @@ class LocalFileStorage(StorageInterface):
         if len(os.listdir(UPLOAD_FOLDER + result.path)) == 0:
             os.removedirs(UPLOAD_FOLDER + result.path)
 
-    def update(self, name: str, path: str, extension: str, old_name: str, old_path: str) -> dict:
+    def update(self, name: str, path: str, extension: str, old_name: str, old_path: str) -> str:
         if (len(path) != 0) and (path[-1] != '/'):
             path += "/"
 
         old_full_path = UPLOAD_FOLDER + old_path + old_name + '.' + extension
-
-        st = dict()
         new_path = UPLOAD_FOLDER
 
         if path != "":
-            st['path'] = path
+            ret_path = path
             new_path += path
             if not (os.path.exists(new_path)):
                 os.makedirs(new_path)
         else:
             new_path += old_path
-            st['path'] = old_path
+            ret_path = old_path
 
         if name != "":
-            st['name'] = name
             new_path += name
         else:
             new_path += old_name
@@ -68,10 +65,12 @@ class LocalFileStorage(StorageInterface):
             if len(os.listdir(UPLOAD_FOLDER + old_path)) == 0:
                 os.removedirs(UPLOAD_FOLDER + old_path)
 
-        return st
+        return ret_path
 
-    def download(self, path: str):
-        return send_from_directory(directory=UPLOAD_FOLDER, path=path)
+    def download(self, name: str, extension: str, path: str):
+        with open(UPLOAD_FOLDER + path + name + '.' + extension, 'rb') as file:
+            buf = io.BytesIO(file.read())
+            return buf
 
     def sync(self, all: str) -> list:
         result = json.loads(all)
