@@ -1,4 +1,4 @@
-from .local_filestorage import LocalFilestorage
+from .local_filestorage import LocalFileStorage
 
 
 class FilesStorageSystem:
@@ -11,5 +11,5 @@ class FilesStorageSystem:
     @staticmethod
     def get_system():
         if FilesStorageSystem.system is None:
-            FilesStorageSystem.system = LocalFilestorage()
+            FilesStorageSystem.system = LocalFileStorage()
         return FilesStorageSystem.system

@@ -1,4 +1,3 @@
-import datetime
 import json
 import os
 from flask import send_from_directory
@@ -9,7 +8,7 @@ from .storage_interface import StorageInterface
 UPLOAD_FOLDER = os.getenv('UPLOAD_FOLDER', 'D:/downloads')
 
 
-class LocalFilestorage(StorageInterface):
+class LocalFileStorage(StorageInterface):
 
     def add(self, file, path: str, comment: str) -> str:
         if len(path) != 0:
