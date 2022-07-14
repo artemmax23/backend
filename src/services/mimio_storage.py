@@ -11,13 +11,15 @@ from .storage_interface import StorageInterface
 class MinioFileStorage(StorageInterface):
 
     def __init__(self):
-        self.session = boto3.Session(profile_name='default')
+        self.session = boto3.Session(profile_name=os.getenv('PROFILE_NAME', 'default'))
         self.s3 = self.session.client(
             's3',
-            endpoint_url='http://minio:9000'
+            endpoint_url=os.getenv('BOTO_URL')
         )
-        self.default_file_bucket = os.getenv('BOTO_DEFAULT_BUCKET')
-        if not self.s3.head_bucket(Bucket=self.default_file_bucket):
+        self.default_file_bucket = os.getenv('BOTO_DEFAULT_BUCKET', 'default')
+        try:
+            self.s3.head_bucket(Bucket=self.default_file_bucket)
+        except BaseException:
             self.s3.create_bucket(Bucket=self.default_file_bucket)
 
     def add(self, file, path: str) -> str:

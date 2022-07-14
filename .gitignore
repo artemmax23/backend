@@ -1,2 +1,4 @@
 .idea/
-__pychche__/
+__pycache__/
+.evn
+./boto
