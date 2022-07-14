@@ -1,13 +1,12 @@
-MODE_STORAGE=default
-<<<<<<< HEAD
+MODE_STORAGE=MINIO
 MINIO_ROOT_USER=minio-root-user
 MINIO_ROOT_PASSWORD=minio-root-password
-=======
->>>>>>> origin/master
 
 DB_HOST=db
 DB_PORT=5432
-UPLOAD_FOLDER=/download
+BOTO_URL=http://minio:9000
+BOTO_DEFAULT_BUCKET=default
+PROFILE_NAME=default
 
 POSTGRES_PASSWORD=root
 POSTGRES_DB=filestorage
