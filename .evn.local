@@ -1,0 +1,11 @@
+MODE_STORAGE=default
+MINIO_ROOT_USER=minio-root-user
+MINIO_ROOT_PASSWORD=minio-root-password
+
+DB_HOST=db
+DB_PORT=5432
+UPLOAD_FOLDER=/download
+
+POSTGRES_PASSWORD=root
+POSTGRES_DB=filestorage
+POSTGRES_USER=root
