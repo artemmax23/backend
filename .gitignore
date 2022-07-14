@@ -1,4 +1,7 @@
 .idea/
 __pycache__/
-.evn
-./boto
+/.evn
+/.env.minio
+/.env.yandex
+/.evn.local
+./boto/credentials
