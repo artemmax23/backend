@@ -2,6 +2,7 @@ import os
 
 from .local_filestorage import LocalFileStorage
 from .mimio_storage import MinioFileStorage
+from .storage_interface import StorageInterface
 
 
 class FilesStorageSystem:
@@ -9,11 +10,11 @@ class FilesStorageSystem:
     def __init__(self):
         pass
 
-    mode = os.getenv('MODE_STORAGE', 'default')
-    system = staticmethod(None)
+    mode: str = os.getenv('MODE_STORAGE', 'default')
+    system: StorageInterface = staticmethod(None)
 
     @staticmethod
-    def get_system():
+    def get_system() -> StorageInterface:
         if FilesStorageSystem.system is None:
             if FilesStorageSystem.mode == 'default':
                 FilesStorageSystem.system = LocalFileStorage()

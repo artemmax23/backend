@@ -1,25 +1,29 @@
+import io
 import json
 import traceback
 from flask import request, send_file
 from flask_jwt_extended import jwt_required
+from models.db_interface_class import DBInterface
+from models.file_class import File
 from repository.connect import Connect
 from services.files_storage_system import FilesStorageSystem
+from services.storage_interface import StorageInterface
 
-system = FilesStorageSystem.get_system()
-db = Connect.connect()
+system: StorageInterface = FilesStorageSystem.get_system()
+db: DBInterface = Connect.connect()
 
 
 @jwt_required()
-def find():
-    path = str(request.form['path'])
+def find() -> str:
+    path: str = str(request.form['path'])
     return db.find(path)
 
 
 @jwt_required()
-def download(file_id):
-    file = json.loads(db.one(file_id))
+def download(file_id: int) -> str:
+    file: dict = json.loads(db.one(file_id))
     if not (file is None):
-        sd_file = system.download(file['name'], file['extension'], file['path'])
+        sd_file: io.bytesIO = system.download(file['name'], file['extension'], file['path'])
         sd_file.seek(0)
         return send_file(
             sd_file,
@@ -30,15 +34,15 @@ def download(file_id):
 
 
 @jwt_required()
-def update():
-    file_id = int(request.form['file_id'])
-    name = str(request.form['name'])
-    path = str(request.form['path'])
-    comment = str(request.form['comment'])
+def update() -> str:
+    file_id: int = int(request.form['file_id'])
+    name: str = str(request.form['name'])
+    path: str = str(request.form['path'])
+    comment: str = str(request.form['comment'])
 
     try:
-        temp = json.loads(db.one(file_id))
-        path = system.update(name, path, temp['extension'], temp['name'], temp['path'])
+        temp: dict = json.loads(db.one(file_id))
+        path: str = system.update(name, path, temp['extension'], temp['name'], temp['path'])
         if name == "":
             name = temp['name']
         if comment == "":
@@ -50,7 +54,10 @@ def update():
 
 
 @jwt_required()
-def sync():
+def sync() -> str:
+    insert_list: list = []
+    delete_list: list = []
+
     insert_list, delete_list = system.sync(db.all())
     for p in insert_list:
         db.insert(p['name'], p['extension'], p['size'], p['path'], p['comment'])

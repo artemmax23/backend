@@ -32,8 +32,8 @@ class MinioFileStorage(StorageInterface):
             Key=file.path
         )
 
-    def update(self, name: str, path: str, extension: str, old_name: str, old_path: str) -> dict:
-        copy_source = {
+    def update(self, name: str, path: str, extension: str, old_name: str, old_path: str) -> str:
+        copy_source: dict = {
                 'Bucket': self.default_file_bucket,
                 'Key': old_path
             }
@@ -53,7 +53,7 @@ class MinioFileStorage(StorageInterface):
 
         return old_path
 
-    def download(self, name: str, extension: str, path: str):
+    def download(self, name: str, extension: str, path: str) -> io.BytesIO:
         file = io.BytesIO()
         self.s3.download_fileobj(
             self.default_file_bucket,
@@ -63,16 +63,16 @@ class MinioFileStorage(StorageInterface):
         return file
 
     def sync(self, all: str) -> list:
-        result = json.loads(all)
-        db_paths = [p['path'] for p in result]
+        result: list = json.loads(all)
+        db_paths: list = [p['path'] for p in result]
 
-        insert_list = []
+        insert_list: list = []
 
         for p in self.s3.list_objects(Bucket=self.default_file_bucket)['Contents']:
             if p['Key'] in db_paths:
                 db_paths.remove(p['Key'])
             else:
-                fullname = []
+                fullname: list = []
                 if p['Key'].count('.') != 0:
                     fullname = p['Key'].split('.')
                 else:
@@ -82,10 +82,10 @@ class MinioFileStorage(StorageInterface):
                     {'name': fullname[0], 'extension': fullname[1], 'size': p['Size'],
                      'path': p['Key'], 'comment': ""})
 
-        delete_list = []
+        delete_list: list = []
 
         for p in db_paths:
-            file = list(filter(lambda x: x['path'] == p, result))
+            file: list = list(filter(lambda x: x['path'] == p, result))
             delete_list.append({'name': file[0]['name'], 'extension': file[0]['extension'], 'path': p})
 
         return insert_list, delete_list

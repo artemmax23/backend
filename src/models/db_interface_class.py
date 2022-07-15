@@ -4,11 +4,11 @@ from abc import ABC, abstractmethod
 class DBInterface(ABC):
 
     @abstractmethod
-    def all(self):
+    def all(self) -> str:
         pass
 
     @abstractmethod
-    def one(self, file_id: int):
+    def one(self, file_id: int) -> str:
         pass
 
     @abstractmethod
@@ -17,11 +17,11 @@ class DBInterface(ABC):
         pass
 
     @abstractmethod
-    def remove(self, file_id: int):
+    def remove(self, file_id: int) -> str:
         pass
 
     @abstractmethod
-    def find(self, path: str):
+    def find(self, path: str) -> str:
         pass
 
     @abstractmethod

@@ -1,3 +1,5 @@
+from models.db_interface_class import DBInterface
+
 from .postgres_db_class import PostgresDb
 
 
@@ -5,10 +7,10 @@ class Connect:
     def __init__(self):
         pass
 
-    db = staticmethod(None)
+    db: DBInterface = staticmethod(None)
 
     @staticmethod
-    def connect() -> PostgresDb:
+    def connect() -> DBInterface:
         if Connect.db is None:
             Connect.db = PostgresDb()
         return Connect.db

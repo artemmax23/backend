@@ -18,8 +18,8 @@ class LocalFileStorage(StorageInterface):
                 path = '/' + path
         else:
             path = "/"
-        filename = secure_filename(file.filename)
-        name = filename.split(".")
+        filename: str = secure_filename(file.filename)
+        name: list = filename.split(".")
         if len(name[1]) > 4:
             return "Invalid file extension!"
         if not (os.path.exists(UPLOAD_FOLDER + path)):
@@ -41,17 +41,17 @@ class LocalFileStorage(StorageInterface):
         if (len(path) != 0) and (path[-1] != '/'):
             path += "/"
 
-        old_full_path = UPLOAD_FOLDER + old_path + old_name + '.' + extension
-        new_path = UPLOAD_FOLDER
+        old_full_path: str = UPLOAD_FOLDER + old_path + old_name + '.' + extension
+        new_path: str = UPLOAD_FOLDER
 
         if path != "":
-            ret_path = path
+            ret_path: str = path
             new_path += path
             if not (os.path.exists(new_path)):
                 os.makedirs(new_path)
         else:
             new_path += old_path
-            ret_path = old_path
+            ret_path: str = old_path
 
         if name != "":
             new_path += name
@@ -69,15 +69,15 @@ class LocalFileStorage(StorageInterface):
 
     def download(self, name: str, extension: str, path: str):
         with open(UPLOAD_FOLDER + path + name + '.' + extension, 'rb') as file:
-            buf = io.BytesIO(file.read())
+            buf: io.BytesIO = io.BytesIO(file.read())
             return buf
 
     def sync(self, all: str) -> list:
-        result = json.loads(all)
-        db_paths = [UPLOAD_FOLDER + p['path'] + p['name'] + '.' + p['extension'] for p in result]
-        cnt = UPLOAD_FOLDER.count('/')
+        result: list = json.loads(all)
+        db_paths: list = [UPLOAD_FOLDER + p['path'] + p['name'] + '.' + p['extension'] for p in result]
+        cnt: int = UPLOAD_FOLDER.count('/')
 
-        insert_list = []
+        insert_list: list = []
 
         for address, dirs, files in os.walk(UPLOAD_FOLDER):
             for name in files:
@@ -85,9 +85,9 @@ class LocalFileStorage(StorageInterface):
                 path = path.replace('\\', '/')
                 address = address.replace('\\', '/')
                 if not (path in db_paths):
-                    filename = name.split('.')
-                    info = os.stat(path)
-                    relative = address.split('/', cnt)[cnt]
+                    filename: list = name.split('.')
+                    info: list = os.stat(path)
+                    relative: str = address.split('/', cnt)[cnt]
                     if len(relative) != 0:
                         relative = '/' + relative + '/'
                     insert_list.append(
@@ -96,11 +96,11 @@ class LocalFileStorage(StorageInterface):
                 else:
                     db_paths.remove(path)
 
-        delete_list = []
+        delete_list: list = []
         cnt += 1
 
         for p in db_paths:
-            relative = p.split('/', cnt)
+            relative: list = p.split('/', cnt)
             relative.reverse()
             if relative[0].count('/') != 0:
                 fullname, path = relative[0][::-1].split('/', 1)
